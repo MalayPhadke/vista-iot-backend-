@@ -1,0 +1,239 @@
+# Comprehensive IoT Gateway Configuration with Multiple Devices and Tags
+modbus:
+  # Global configuration
+  master_config:
+    max_users: 10
+    batch_read_enabled: true  # Enable reading multiple registers in a single request when possible
+    batch_write_enabled: true  # Enable writing to multiple registers in a single request when possible
+    error_retry_count: 3
+    connection_timeout: 5000  # milliseconds
+
+  # Port configuration
+  ports:
+    - port_name: "ControlPort1"
+      port_type: "tcp"
+      port_number: 502
+      enabled: true
+      response_timeout: 3000  # milliseconds
+      
+      # Devices attached to this port
+      devices:
+        # Crane device as shown in the screenshot
+        - device_name: "Crane"
+          ip_address: "192.168.47.100"
+          slave_id: 1
+          enabled: true
+          scan_groups:
+            - name: "Default"
+              scan_rate: 1  # seconds
+              read_mode: "batch"  # Read all possible tags in a batch to optimize
+              write_mode: "single"  # Write individually
+          
+          # Tags/variables for the Crane device
+          tags:
+            # Current measurement - first item in screenshot
+            - tag_name: "Crane.Current_Amp"
+              data_type: "Analog"
+              default_value: 0.0
+              address: 43913
+              conversion: "FLOAT, Big Endian, Swap Word (CDAB)"
+              scaling_type: "No Scale"
+              scan_rate: 1
+              read_write_type: "Read/Write"
+              description: "Crane current in amperes"
+              span_high: 1000.0
+              span_low: 0.0
+              
+            # Apparent Energy - second item in screenshot
+            - tag_name: "Crane.Apparent_Energy_kVAh"
+              data_type: "Analog"
+              default_value: 0.0
+              address: 43959
+              conversion: "FLOAT, Big Endian, Swap Word (CDAB)"
+              scaling_type: "No Scale"
+              scan_rate: 1
+              read_write_type: "Read/Write"
+              description: "Crane apparent energy in kVAh"
+              span_high: 100000.0
+              span_low: 0.0
+              
+            # Active Energy - third item in screenshot
+            - tag_name: "Crane.Active_Energy_kWh"
+              data_type: "Analog"
+              default_value: 0.0
+              address: 43961
+              conversion: "FLOAT, Big Endian, Swap Word (CDAB)"
+              scaling_type: "No Scale"
+              scan_rate: 1
+              read_write_type: "Read/Write"
+              description: "Crane active energy in kWh"
+              span_high: 100000.0
+              span_low: 0.0
+              
+            # Power Factor - fourth item in screenshot
+            - tag_name: "Crane.PF"
+              data_type: "Analog"
+              default_value: 0.0
+              address: 43967
+              conversion: "FLOAT, Big Endian, Swap Word (CDAB)"
+              scaling_type: "No Scale"
+              scan_rate: 1
+              read_write_type: "Read/Write"
+              description: "Crane power factor"
+              span_high: 1.0
+              span_low: -1.0
+        
+        # Example of another device on the same port - a Motor Controller
+        - device_name: "MotorController"
+          ip_address: "192.168.47.101"
+          slave_id: 2
+          enabled: true
+          scan_groups:
+            - name: "Fast"
+              scan_rate: 0.5  # 500ms
+              read_mode: "batch"
+              write_mode: "batch"
+            - name: "Normal"
+              scan_rate: 1  # 1 second
+              read_mode: "batch"
+              write_mode: "single"
+          
+          # Tags for the Motor Controller
+          tags:
+            - tag_name: "MotorController.Speed"
+              data_type: "Analog"
+              default_value: 0.0
+              address: 40001
+              conversion: "INT, Big Endian (ABCD)"
+              scaling_type: "Scale Defined Input H/L to Span"
+              input_high: 4000
+              input_low: 0
+              span_high: 1750  # RPM
+              span_low: 0
+              scan_rate: 0.5
+              scan_group: "Fast"
+              read_write_type: "Read/Write"
+              description: "Motor speed in RPM"
+              
+            - tag_name: "MotorController.Torque"
+              data_type: "Analog"
+              default_value: 0.0
+              address: 40003
+              conversion: "INT, Big Endian (ABCD)"
+              scaling_type: "Linear Scale, MX+B"
+              scale: 0.1  # M value
+              offset: 0.0  # B value
+              scan_rate: 0.5
+              scan_group: "Fast"
+              read_write_type: "Read/Write"
+              description: "Motor torque in Nm"
+              
+            - tag_name: "MotorController.Temperature"
+              data_type: "Analog"
+              default_value: 25.0
+              address: 40005
+              conversion: "INT, Big Endian (ABCD)"
+              scaling_type: "Scale Defined Input H/L to Span"
+              input_high: 1000
+              input_low: 0
+              span_high: 120  # Celsius
+              span_low: -20
+              scan_rate: 1
+              scan_group: "Normal"
+              read_write_type: "Read Only"
+              description: "Motor temperature in Celsius"
+              clamp_to_span_high: true
+              clamp_to_span_low: true
+              
+            - tag_name: "MotorController.Status"
+              data_type: "Discrete"
+              default_value: 0
+              address: 10001
+              conversion: ""
+              scaling_type: "No Scale"
+              scan_rate: 0.5
+              scan_group: "Fast"
+              read_write_type: "Read Only"
+              description: "Motor status (0=Off, 1=Running)"
+              
+    # Example of a second port - RS485 Serial Port
+    - port_name: "SerialPort1"
+      port_type: "rtu"
+      serial_device: "/dev/ttyS0"
+      baud_rate: 9600
+      data_bits: 8
+      stop_bits: 1
+      parity: "none"
+      enabled: true
+      response_timeout: 1000  # milliseconds
+      
+      # Devices attached to the serial port
+      devices:
+        - device_name: "TemperatureSensor"
+          slave_id: 1
+          enabled: true
+          
+          # Tags for the Temperature Sensor
+          tags:
+            - tag_name: "TemperatureSensor.Temp1"
+              data_type: "Analog"
+              default_value: 25.0
+              address: 30001
+              conversion: "FLOAT, Big Endian (ABCD)"
+              scaling_type: "No Scale"
+              scan_rate: 5
+              read_write_type: "Read Only"
+              description: "Temperature sensor 1 in Celsius"
+              
+            - tag_name: "TemperatureSensor.Temp2"
+              data_type: "Analog"
+              default_value: 25.0
+              address: 30003
+              conversion: "FLOAT, Big Endian (ABCD)"
+              scaling_type: "No Scale"
+              scan_rate: 5
+              read_write_type: "Read Only"
+              description: "Temperature sensor 2 in Celsius"
+              
+            - tag_name: "TemperatureSensor.Humidity"
+              data_type: "Analog"
+              default_value: 50.0
+              address: 30005
+              conversion: "FLOAT, Big Endian (ABCD)"
+              scaling_type: "No Scale"
+              scan_rate: 5
+              read_write_type: "Read Only"
+              description: "Humidity in %RH"
+              span_high: 100.0
+              span_low: 0.0
+              clamp_to_span_high: true
+              clamp_to_span_low: true
+              
+# Example of batch read/write operations for the Modbus master
+batch_operations:
+  # Batch read operation for the Crane device
+  - operation_name: "CraneMainParameters"
+    device_name: "Crane"
+    operation_type: "read"
+    scan_rate: 1
+    enabled: true
+    registers:
+      - start_address: 43913  # Current_Amp
+        count: 2
+        tag_names: ["Crane.Current_Amp"]
+      - start_address: 43959  # Apparent_Energy and Active_Energy are contiguous
+        count: 4
+        tag_names: ["Crane.Apparent_Energy_kVAh", "Crane.Active_Energy_kWh"]
+      - start_address: 43967  # PF
+        count: 2
+        tag_names: ["Crane.PF"]
+        
+  # Batch write operation for the Motor Controller
+  - operation_name: "MotorControllerSetpoints"
+    device_name: "MotorController"
+    operation_type: "write"
+    enabled: true
+    registers:
+      - start_address: 40001
+        count: 4
+        tag_names: ["MotorController.Speed", "MotorController.Torque"]

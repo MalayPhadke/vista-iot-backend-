@@ -1,0 +1,67 @@
+# Example Modbus Master Configuration
+modbus:
+  # Main arguments
+  master_config:
+    max_users: 10  # Maximum concurrent users when acting as a Modbus client
+  
+  # List of slaves to connect to
+  slaves:
+    # First slave device
+    - slave_name: "PLC_1"
+      ip_address: "192.168.47.200"  # Replace with the actual IP of your slave device
+      port: 502
+      slave_id: 1
+      datatype: "analog"
+      conversion: "FLOAT, Big Endian, Swap Word (CDAB)"
+      address: 43913
+      start_bit: 0
+      length_bit: 32
+      read_write_type: "read_write"
+      scan_rate: 1
+      scaling_type: ""
+      formula: ""
+      scale: 0
+      offset: 0
+      clamp_to_span_low: false
+      clamp_to_span_high: false
+      clamp_to_zero: false
+    
+    # Second slave device - current amp example
+    - slave_name: "Current_Amp"
+      ip_address: "192.168.47.201"  # Replace with the actual IP of your slave device
+      port: 502
+      slave_id: 1
+      datatype: "analog"
+      conversion: "FLOAT, Big Endian, Swap Word (CDAB)"
+      address: 43913
+      start_bit: 0
+      length_bit: 32
+      read_write_type: "read_write"
+      scan_rate: 1
+      scaling_type: "No Scale"
+      formula: ""
+      scale: 0
+      offset: 0
+      clamp_to_span_low: false
+      clamp_to_span_high: false
+      clamp_to_zero: false
+    
+    # Example of a discrete input
+    - slave_name: "Motor_Status"
+      ip_address: "192.168.47.202"  # Replace with the actual IP of your slave device
+      port: 502
+      slave_id: 1
+      datatype: "discrete"
+      conversion: ""
+      address: 10001  # Discrete input address
+      start_bit: 0
+      length_bit: 1
+      read_write_type: "read_only"
+      scan_rate: 1
+      scaling_type: ""
+      formula: ""
+      scale: 0
+      offset: 0
+      clamp_to_span_low: false
+      clamp_to_span_high: false
+      clamp_to_zero: false
