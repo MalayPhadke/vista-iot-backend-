@@ -1,0 +1,18 @@
+plcs:
+  Virtual_PLC_1:
+    url: opc.tcp://localhost:4841
+    variables_to_monitor:
+    - ns=2;s=SimulatedAnalogValue
+    - ns=2;s=SimulatedBoolean
+  Virtual_PLC_2:
+    url: opc.tcp://localhost:4842
+    security_policy: Basic256Sha256
+    message_security_mode: SignAndEncrypt
+    client_cert_path: /home/malay/vista-iot-backend-/certs/opcua_client_certificate.der
+    client_key_path: /home/malay/vista-iot-backend-/certs/private/opcua_client_private_key.pem
+    user_settings:
+      username: user
+      password: password
+    variables_to_monitor:
+    - ns=2;s=SimulatedCounter
+    - ns=2;s=SimulatedString

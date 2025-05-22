@@ -1,0 +1,7 @@
+venv
+__pycache__
+certs
+plc_data_log.csv
+Virtual_PLC_1_history.sqlite
+Virtual_PLC_2_history.sqlite
+database.db

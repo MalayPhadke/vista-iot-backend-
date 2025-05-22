@@ -1,0 +1,68 @@
+  # General OPC UA Server Configuration
+opc_ua:
+  server_config:
+    enable_service: true
+    port: 51210 # As seen in your image_1397a5.png and image_13fd03.png
+    max_clients: 4 # As seen in your image_1397a5.png and image_13fd03.png
+    user_account_control_method: "Anonymous" # Or "Username/Password" based on image_1397a5.png
+    username: null # Only if user_account_control_method is "Username/Password"
+    password_hash: null # Store hashed password here if using "Username/Password"
+    node_id_namespace_uri: "http://yourcompany.com/opcua/gateway/" # As seen in image_13fd03.png (Namespace URI 2 chosen)
+
+    # Security Policy Configuration (Based on image_13fd62.png)
+    security_policy_none_enabled: true
+    security_policy_basic128rsa15_enabled: true
+    security_policy_basic256_enabled: true
+    security_policy_basic256sha256_enabled: true
+    message_security_mode: "Sign and Encrypt" # As seen in image_13fd62.png ("Select All" maps to this if any policy supports it)
+
+    # Certificate Paths (Example paths, actual paths would be on your gateway)
+    server_cert_path: "/etc/opcua_gateway/certs/server/server_cert.pem"
+    server_key_path: "/etc/opcua_gateway/certs/server/server_key.pem"
+    ca_cert_dir: "/etc/opcua_gateway/certs/client_trusted" # Directory for trusted client certificates
+
+    # Discovery Server Configuration (Based on image_13fd9d.png)
+    enable_local_discovery_server: false
+    lds_server_url: "opc.tcp://8.8.8.8:4840" # Example URL from your image
+    registration_interval_seconds: 300 # As seen in your image_13fd9d.png
+
+  # OPC UA Nodes (Tags) Configuration
+  opcua_nodes:
+    - name: "PLC_1_PLC_tag" # As seen in your image_204b02.png
+      node_id: "ns=2;s=PLC_1_PLC_tag" # Constructed Node ID based on your example and chosen namespace (assuming ns=2)
+      data_type: "Double" # As seen in your image_204b02.png ("analog" often implies floating point in industrial context, Double is a good fit for OPC UA)
+      engineering_units: "UDINT, BigE" # As seen in your image_204b02.png, though OPC UA has dedicated EU properties. For simplicity, storing as string.
+      browse_name: "PLC_1_PLC_tag" # Often same as name or a simplified version
+      display_name: "PLC_1 PLC Tag" # User-friendly display name
+      description: "Analog tag from PLC 1" # A descriptive text
+
+      # Modbus Specific Configuration for this node (linking to "Source" and "Address" from image_204b02.png)
+      modbus_register_type: "holding_register" # Example: "holding_register", "input_register", "coil", "discrete_input"
+      modbus_slave_id: 1 # Example Modbus slave ID (unit ID)
+      modbus_address: 0 # Example Modbus register address (based on "SM001", often refers to starting address)
+
+    - name: "SYS_CPU_IOWAIT" # As seen in your image_13fd03.png
+      node_id: "ns=2;s=SYS_CPU_IOWAIT"
+      data_type: "Double" # As seen in your image_13fd03.png
+      engineering_units: null
+      browse_name: "SYS_CPU_IOWAIT"
+      display_name: "System CPU IO Wait"
+      description: "CPU IO Wait time for the system."
+
+      # Modbus Specific Configuration for this node (you'd need to define how this maps to a PLC)
+      modbus_register_type: "input_register" # Example
+      modbus_slave_id: 1
+      modbus_address: 100 # Example
+
+    - name: "myNewTag" # As seen in your image_13fd03.png
+      node_id: "ns=2;s=myg:myNewTag" # Original example had myg namespace prefix, adjust as needed
+      data_type: "Double" # As seen in your image_13fd03.png
+      engineering_units: null
+      browse_name: "myNewTag"
+      display_name: "My New Tag"
+      description: "A dynamically added new tag."
+
+      # Modbus Specific Configuration
+      modbus_register_type: "holding_register" # Example
+      modbus_slave_id: 1
+      modbus_address: 50 # Example

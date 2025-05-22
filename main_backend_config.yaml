@@ -1,0 +1,44 @@
+# Master configuration for the OPC UA Backend and its components
+
+# --- Existing Backend Settings (if any, e.g., database, FastAPI server settings) ---
+# server_config:
+#   db_url: "sqlite:///./your_main_database.db"
+#   # ... other main backend settings
+
+gateway_client_settings:
+  enabled: true # Set to false to disable starting the gateway client
+  script_path: "/home/malay/vista-iot-backend-/opcua_gateway_client.py"
+  config_output_path: "/home/malay/vista-iot-backend-/opcua_client_config.yaml" # Path where the client's config will be written
+  data: # This section becomes the content of opcua_client_config.yaml
+    plcs:
+      Virtual_PLC_1:
+        url: "opc.tcp://localhost:4841"
+        # No security means default to NoSecurity,None
+        variables_to_monitor:
+          - "ns=2;s=SimulatedAnalogValue"  # Ensure namespace index (ns) is correct for your server
+          - "ns=2;s=SimulatedBoolean"
+      Virtual_PLC_2:
+        url: "opc.tcp://localhost:4842"
+        security_policy: "Basic256Sha256" # e.g., Basic256Sha256, NoSecurity
+        message_security_mode: "SignAndEncrypt" # e.g., SignAndEncrypt, Sign, None_
+        client_cert_path: "/home/malay/vista-iot-backend-/certs/opcua_client_certificate.der"
+        client_key_path: "/home/malay/vista-iot-backend-/certs/private/opcua_client_private_key.pem"
+        # server_cert_path: "/home/malay/vista-iot-backend-/certs/virtual_plc_2_certificate.der" # Required if server uses self-signed cert and client needs to trust it
+        user_settings: # Optional, if PLC requires user authentication
+          username: "user"
+          password: "password"
+        variables_to_monitor:
+          - "ns=2;s=SimulatedCounter"
+          - "ns=2;s=SimulatedString"
+    # Default CSV log file and interval for the client (these are internal to opcua_gateway_client.py)
+    # csv_log_file: "/home/malay/vista-iot-backend-/plc_data_log.csv" # Client uses its own default
+    # log_interval: 10 # Client uses its own default
+
+csv_data_server_settings:
+  enabled: true # Set to false to disable starting this OPC UA server
+  script_path: "/home/malay/vista-iot-backend-/opcua_csv_data_server.py"
+  url: "opc.tcp://0.0.0.0:4850/csv_data_server/" # Endpoint for SCADA to connect
+  namespace_uri: "http://mycompany.com/csv_data_server"
+  csv_file_path: "/home/malay/vista-iot-backend-/plc_data_log.csv" # Must match the output of opcua_gateway_client.py
+  update_interval_seconds: 5 # How often the server checks the CSV for updates
+  log_level: "INFO" # DEBUG, INFO, WARNING, ERROR

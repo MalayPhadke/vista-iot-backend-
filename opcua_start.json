@@ -1,0 +1,43 @@
+{
+    "gateway_client_settings": {
+      "enabled": true,
+      "script_path": "/home/malay/vista-iot-backend-/opcua_gateway_client.py",
+      "config_output_path": "/home/malay/vista-iot-backend-/opcua_client_config.yaml",
+      "data": {
+        "plcs": {
+          "Virtual_PLC_1": {
+            "url": "opc.tcp://localhost:4841",
+            "variables_to_monitor": [
+              "ns=2;s=SimulatedAnalogValue",
+              "ns=2;s=SimulatedBoolean"
+            ]
+          },
+          "Virtual_PLC_2": {
+            "url": "opc.tcp://localhost:4842",
+            "security_policy": "Basic256Sha256",
+            "message_security_mode": "SignAndEncrypt",
+            "client_cert_path": "/home/malay/vista-iot-backend-/certs/opcua_client_certificate.der",
+            "client_key_path": "/home/malay/vista-iot-backend-/certs/private/opcua_client_private_key.pem",
+            "user_settings": {
+              "username": "user",
+              "password": "password"
+            },
+            "variables_to_monitor": [
+              "ns=2;s=SimulatedCounter",
+              "ns=2;s=SimulatedString"
+            ]
+          }
+        }
+      }
+    },
+    "csv_data_server_settings": {
+      "enabled": true,
+      "script_path": "/home/malay/vista-iot-backend-/opcua_csv_data_server.py",
+      "url": "opc.tcp://0.0.0.0:4850/csv_data_server/",
+      "namespace_uri": "http://mycompany.com/csv_data_server",
+      "csv_file_path": "/home/malay/vista-iot-backend-/plc_data_log.csv",
+      "update_interval_seconds": 5,
+      "log_level": "INFO",
+      "wait_for_csv_timeout": 30 
+    }
+  }
